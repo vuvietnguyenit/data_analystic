@@ -4,7 +4,7 @@ import random
 import time
 
 # CONSTs
-JSON_FILE = "request_data_with_duration_time.json"
+JSON_FILE = "request_data_with_anomaly_pod_instance.json"
 PATH = "./statics"
 LIMIT_ROW_IN_FILE = 14798
 
@@ -29,7 +29,7 @@ def write(row_data):
         f.write("\n")
 
 
-def generate():
+def generate(anomaly_by_instance: bool):
     current_time = datetime.now().strftime("%d/%m/%Y, %H:%M:%S")
     row = {
         "timestamp": current_time,
@@ -39,6 +39,8 @@ def generate():
         "controller_pod": random_value(ValuesFixed.controller_pods),
         "duration_time": random_value(ValuesFixed.duration_time)
     }
+    if anomaly_by_instance and row['controller_pod'] == 'pod-1' and row['path'] == '/users':
+        row['duration_time'] = random_value([t/1000 for t in range(900, 1500)])
     return row
 
 
@@ -47,8 +49,11 @@ if __name__ == "__main__":
     while True:
         if count == LIMIT_ROW_IN_FILE:
             break
-        row = generate()
+        # generate anomaly data for pod-1 in path == '/users' with latency >= 900ms
+        if count in range(2024, 3100):
+            row = generate(anomaly_by_instance=True)
+        else:
+            row = generate(anomaly_by_instance=False)
         write(row_data=row)
         count += 1
-        time.sleep(0.2)
     print("Done!")
