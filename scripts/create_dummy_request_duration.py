@@ -46,14 +46,16 @@ def generate(anomaly_by_instance: bool):
 
 if __name__ == "__main__":
     count = 0
+    sleep_time = [x/10 for x in range(1, 8)]
     while True:
         if count == LIMIT_ROW_IN_FILE:
             break
         # generate anomaly data for pod-1 in path == '/users' with latency >= 900ms
-        if count in range(2024, 3100):
+        if count in range(2024, 3100) or count in range (10101, 10999):
             row = generate(anomaly_by_instance=True)
         else:
             row = generate(anomaly_by_instance=False)
         write(row_data=row)
         count += 1
+        time.sleep(random_value(sleep_time))
     print("Done!")
