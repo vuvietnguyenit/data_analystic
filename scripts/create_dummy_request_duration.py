@@ -5,14 +5,14 @@ import time
 
 # CONSTs
 JSON_FILE = "request_data_with_anomaly_pod_instance.json"
-PATH = "./statics"
-LIMIT_ROW_IN_FILE = 14798
+PATH = "../statics"
+LIMIT_ROW_IN_FILE = 14798 * 10
 
 
 class ValuesFixed:
     controller_pods = ["pod-1", "pod-2"]
     paths = ["/home", "/users"]
-    duration_time = [t/1000 for t in range(1, 803)]  # seconds
+    duration_time = [t / 1000 for t in range(10, 803)]  # seconds
 
 
 def random_value(arr):
@@ -40,18 +40,18 @@ def generate(anomaly_by_instance: bool):
         "duration_time": random_value(ValuesFixed.duration_time)
     }
     if anomaly_by_instance and row['controller_pod'] == 'pod-1' and row['path'] == '/users':
-        row['duration_time'] = random_value([t/1000 for t in range(900, 1500)])
+        row['duration_time'] = random_value([t / 1000 for t in range(900, 2000)])
     return row
 
 
 if __name__ == "__main__":
     count = 0
-    sleep_time = [x/10 for x in range(1, 8)]
+    sleep_time = [x / 10 for x in range(1, 8)]
     while True:
         if count == LIMIT_ROW_IN_FILE:
             break
         # generate anomaly data for pod-1 in path == '/users' with latency >= 900ms
-        if count in range(2024, 3100) or count in range (10101, 10999):
+        if count in range(2024, 3100) or count in range(10101, 10999) or count in range(14798, 14798 + 999):
             row = generate(anomaly_by_instance=True)
         else:
             row = generate(anomaly_by_instance=False)
